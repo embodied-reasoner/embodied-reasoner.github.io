@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Synergizing Visual Search, Reasoning, and Action for Embodied Interactive Tasks">
+  <meta name="keywords" content="Embodied-Reasoner">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Embodied-Reasoner: Synergizing Visual Search, Reasoning, and Action for Embodied Interactive Tasks</title>
+  <style>
+    /* 设置全局字体 */
+    * {
+      font-family: Helvetica, Arial, sans-serif !important;
+    }
+    
+    /* 特别设置标题样式，保持原有粗细但使用相同字体 */
+    .title {
+      font-family: Helvetica, Arial, sans-serif !important;
+      font-weight: 700;  /* 保持标题粗体 */
+    }
+    
+    .subtitle {
+      font-family: Helvetica, Arial, sans-serif !important;
+      font-weight: 500;  /* 副标题稍微淡一些 */
+    }
+    /* 全局基础字体大小 */
+    html {
+      font-size: 16px;  /* 设置基础字体大小 */
+    }
+
+    /* 主标题 */
+    .title.is-1 {
+      font-size: 2.5rem !important;  /* 40px */
+    }
+
+    /* 副标题 */
+    .subtitle.is-3 {
+      font-size: 1.75rem !important;  /* 28px */
+    }
+
+    /* 作者名称和机构 */
+    .author-name {
+      font-size: 1.4rem !important;  /* 20px */
+    }
+    .author-institution {
+      font-size: 1.2rem !important;  /* 16px */
+    }
+
+    /* 正文内容 */
+    p, .content {
+      font-size: 1.3rem !important;  /* 16px */
+      line-height: 1.4 !important;  /* 行高 */
+    }
+
+    /* 章节标题 */
+    .section-title {
+      font-size: 1.5rem !important;  /* 24px */
+    }
+
+    /* 响应式设计 - 在小屏幕上调整大小 */
+    @media screen and (max-width: 768px) {
+      .title.is-1 {
+        font-size: 2rem !important;  /* 32px */
+      }
+      .subtitle.is-3 {
+        font-size: 1.5rem !important;  /* 24px */
+      }
+      .author-name {
+        font-size: 1.1rem !important;  /* 17.6px */
+      }
+    }
+
+    /* 添加标题背景样式 */
+    .hero {
+      background-image: url('static/images/logo.png');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.85); /* 白色半透明遮罩 */
+      z-index: 1;
+    }
+
+    .hero-body {
+      position: relative;
+      z-index: 2;
+    }
+  </style>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script> -->
+  <!-- <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+/Users/panlu/Library/Mobile Documents/com~apple~CloudDocs/ImageMath/visual-mathqa-server/data_final/images
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script> -->
+
+  <!--<link rel="icon" href="./static/images/ZJU/ZJU.svg">-->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/leaderboard.css">
+  <link rel="stylesheet" href="./static/css/my.css">
+
+  <!-- <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator_bulma.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script> -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.js"></script>
+  <script src="./static/js/bulma-slider.js"></script>
+  <script src="./static/js/explorer-index.js"></script>
+  <script src="./static/js/question_card.js"></script>
+  <script src="./static/js/leaderboard.js"></script>
+</head>
+
+<body>
+
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="navbar-menu">
+      <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+        <!-- <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a> -->
+        <!-- @PAN TODO: consider adding links? -->
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            More Research
+          </a>
+          <div class="navbar-dropdown">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+  
+
+
+  <!-- <title> -->
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title is-bold">
+              <img 
+              src="static/images/embodied-reasoner-logo.png" 
+              alt="Logo" 
+              style="height: 2.5em; margin-right: 0.5em; vertical-align: middle; opacity: 1; border-radius: 10px;">
+              <span 
+              class="model" 
+              style="vertical-align: middle">Embodied Reasoner</span>
+            </h1>
+            <h2 class="subtitle is-3 publication-subtitle">
+              <strong>Synergizing Visual Search, Reasoning, and Action</strong><br>
+              <strong>for Embodied Interactive Tasks</strong>
+            </h2>
+            <!-- Wenqi Zhang, 
+            Mengna Wang, 
+            Gangao Liu, 
+            Xu Huixin, 
+            Yiwei Jiang, 
+            Yongliang Shen, 
+            Guiyang Hou, 
+            Zhe Zheng, 
+            Hang Zhang, 
+            Xin Li, 
+            Weiming Lu, 
+            Peng Li, 
+            Yueting Zhuang -->
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a>Wenqi Zhang</a>,
+              </span>
+              <span class="author-block">
+                <a>Mengna Wang</a>,
+              </span>
+              <span class="author-block">
+                <a>Gangao Liu</a>,
+              </span>
+              <span class="author-block">
+                <a>Xu Huixin</a>,
+              </span>
+              <span class="author-block">
+                <a>Yiwei Jiang</a>,
+              </span>
+              <span class="author-block">
+                <a>Yongliang Shen</a>,
+              </span>
+              <span class="author-block">
+                <a>Guiyang Hou</a>,
+              </span>
+              <span class="author-block">
+                <a>Zhe Zheng</a>,
+              </span>
+              <span class="author-block">
+                <a>Hang Zhang</a>,
+              </span>
+              <span class="author-block">
+                <a>Xin Li</a>,
+              </span>
+              <span class="author-block">
+                <a>Weiming Lu</a>,
+              </span>
+              <span class="author-block">
+                <a>Peng Li</a>,
+              </span>
+              <span class="author-block">
+                <a>Yueting Zhuang</a>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">Zhejiang University</span><br>
+              <span class="author-block">Institute of Software, Chinese Academy of Sciences</span><br>
+              <span class="author-block">DAMO Academy, Alibaba Group</span><br>
+            </div>
+
+            <!-- <section> -->
+            <!-- <div class="section" id="org-banners" style="display:fle">
+              <a href="https://www.ucla.edu/" target="_blank" rel="external">
+                  <img class="center-block org-banner" src="static/images/ucla.png" style="height:3em">
+              </a>
+              <a href="https://www.washington.edu/" target="blank" class="ext-link">
+                  <img class="center-block org-banner" src="static/images/uw.png" style="height:3em">
+              </a>
+              <a href="https://www.microsoft.com/en-us/research/" target="_blank" rel="external">
+                  <img class="center-block org-banner" src="static/images/microsoft.png" style="height:3em">
+              </a>
+            </div> -->
+            <!-- </section> -->
+
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <span class="link-block">
+                  <a href="https://github.com/zwq2018/" 
+                  class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <!-- <i class="ai ai-arxiv"></i> -->
+                      <img src="static/images/static/arxiv.png" alt="arXiv Logo" style="width: 20px; height: 20px;">
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+                <!-- Code Link. -->
+                <span class="link-block">
+                  <a href="https://github.com/zwq2018/"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github" style="width: 24px; height: 24px;"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+                <!-- Dataset Link. -->
+                <span class="link-block">
+                  <a href="https://github.com/zwq2018/" 
+                  class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <!-- <i class="far fa-images"></i> -->
+                      <p style="font-size:16px">🤗</p>
+                      <!-- 🔗 -->
+                    </span>
+                    <span>Dataset</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://github.com/zwq2018/" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <!-- <i class="far fa-images"></i> -->
+                      <img src="static/images/static/modelscope.png" alt="arXiv Logo" style="width: 24px; height: 24px;">
+                      <!-- 🔗 -->
+                    </span>
+                    <span>Dataset</span>
+                  </a>
+                </span>
+                <!-- Leaderboard Link. -->
+                <span class="link-block">
+                  <a href="https://github.com/zwq2018/"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <p style="font-size:18px">📰</p>
+                    </span>
+                    <span>Media</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <video> -->
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Quick Overview Video</h2>
+          <div class="content">
+            <!-- 视频容器 -->
+            <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+              <!-- 本地视频 -->
+              <video 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                src="static/videos/video_v3.mov"
+                autoplay="autoplay"
+                muted
+                title=""
+                controls
+                loop>
+              </video>
+            </div>
+            
+            <!-- 视频描述文字 -->
+            <div class="content has-text-justified" style="margin-top: 2rem;">
+              <p>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- <abstract  > -->
+  <section class="section" style="margin-top: -50px;">
+    <div class="container" style="margin-bottom: 2vh;">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <!-- <span style="color: red;"></span> -->
+            Recent advances in deep thinking models have demonstrated remarkable reasoning capabilities on mathematical and coding
+            tasks.
+            However, their effectiveness in embodied domains which require continuous interaction with environments through image
+            action interleaved trajectories remains largely -unexplored. 
+            We present <strong>Embodied Reasoner</strong>, a model that extends o1 style
+            reasoning to interactive embodied search tasks. 
+            Unlike mathematical reasoning that relies primarily on logical
+            deduction, embodied scenarios demand spatial understanding, temporal reasoning, and ongoing self reflection based on
+            interaction history. 
+            To address these challenges, we synthesize <span style="color: red;">9.3k</span> coherent <strong>Observation Thought Action trajectories</strong>
+            containing 64k interactive images and 90k diverse thinking processes (analysis, spatial reasoning, reflection, planning,
+            and verification). 
+            We develop a <strong>three stage training pipeline</strong> that progressively enhances the model's capabilities
+            through <span style="color: red;">imitation learning</span>, <span style="color: red;">self exploration</span> via rejection sampling, and <span style="color: red;">self correction</span> through reflection tuning.
+            The evaluation shows that our model significantly outperforms those advanced visual reasoning models, e.g., it exceeds
+            <strong>OpenAI o1</strong>, <strong>o3-mini</strong>, and <strong>Claude-3.7</strong> by <strong>+9%</strong>, <strong>+24%</strong>, and <strong>+13%</strong>. Analysis reveals our model exhibits fewer repeated searches
+            and logical inconsistencies, with particular advantages in <strong>complex long horizon tasks</strong>. <strong>Real-world environments</strong> also show
+            our superiority while exhibiting <span style="color: red;">fewer repeated searches and logical inconsistency cases</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="margin-top: -100px; margin-bottom: -50px;">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <div class="box">
+            <div class="content has-text-centered">
+              <img src="static/images/fig0.pdf" alt="Embodied Reasoner" width="60%" />
+            </div>
+            <div class="has-text-justified">
+              <i>We design an embodied interactive task: <strong>searching for objects in an unknown room</strong>. 
+                Then we propose <strong>Embodied-Reasoner</strong>, which presents <strong>spontaneous reasoning and interaction</strong> ability. 
+                Before each action, it generates diverse thoughts, e.g.,self-reflection or spatial reasoning, forming an image-text interleaved trajectory. 
+                It shows consistent reasoning and efficient search behaviors, whereas OpenAI o3-mini often exhibits repetitive searches and logical inconsistencies with
+              higher failure rates.</i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+
+  <!-- <Insights> -->
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column is-full-width has-text-centered"> -->
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Insights</h2>
+          <div class="content has-text-justified">
+            In this paper, we present <span style="opacity: 1">Embodied-Reasoner</span>, a novel approach that extends deep-thinking capabilities to embodied
+            interactive tasks. Our key insight is that <i>effective embodied reasoning requires not just the ability to process
+            multimodal inputs, but also to generate diverse thinking processes (analysis, planning, reflection) that adapt to
+            different stages of an interaction</i>.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="box" style="width: 100%;">
+
+            <!-- 图片 -->
+            <div class="content has-text-centered">
+              <img src="static/images/fig2.pdf" alt="Embodied Reasoner" width="100%" />
+            </div>
+
+            <!-- 左右两栏 -->
+            <div class="has-text-justified"
+              style="display: flex; gap: 30px; justify-content: center; align-items: flex-start; padding: 20px 10px;">
+
+              <!-- 左侧部分 -->
+              <div style="width: 50%; text-align: justify;">
+                <i>
+                  <b>Left: Data Engine for &lt;Instruction, Interactive Trajectory&gt; synthesis.</b>
+                  First, we synthesize <strong>instructions</strong> from
+                  task templates, and build an <strong>affiliation graph</strong> from scene's meta-data.
+                  It enables us to derive <strong>key actions</strong> needed for task.
+                  We add <strong>exploratory actions</strong> and insert <strong>thinking thoughts</strong> between
+                  observation and actions.
+                </i>
+              </div>
+
+              <!-- 右侧部分 -->
+              <div style="width: 50%; text-align: justify;">
+                <i>
+                  <b>Right: Three-stage training recipe.</b>
+                  1 We finetune on synthesized trajectory to develop <strong>interaction skills</strong>.
+                  2 We sample multiple trajectories on novel tasks and evaluate their correctness. The successful ones are
+                  used for developing its <strong>exploring abilities</strong>.
+                  3 We continue to sample trajectories using updated model, injecting anomalous states and reflective
+                  thoughts in
+                  successful cases and correcting errors in failed ones. This <strong>self-correction</strong> training
+                  yields Embodied-Reasoner.
+                </i>
+              </div>
+
+            </div> <!-- End of flex container -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column is-full-width has-text-centered"> -->
+        <div class="column is-four-fifths">
+
+          <div class="content has-text-justified">
+            <ul>
+              <li><strong>Data Engine:</strong> To develop this capability, we develop a data engine that automatically synthesizes
+              coherent <i>Observation-Thought-Action</i> trajectories enriched with diverse, embodied-specific thinking
+              processes. e.g., <i>situational analysis, spatial reasoning, self-reflection, task planning</i>, and <i>verification</i>.</li>
+              <ul>
+                <li>These coherent, image-text interleaved trajectories guide the model to learn how to plan and reason based on its interaction
+                history and spatial layout, thereby boosting its spatial and temporal reasoning capabilities.</li>
+              </ul>
+              
+              <li><strong>Iterative Training Pipeline:</strong> We further introduce a <i>three-stage iterative training pipeline</i> for embodied model that combines <i>imitation</i>, <i>self-exploration</i>, and
+              <i>self-correction</i>. 
+              <ul>
+                <li>Begins with imitation learning on synthesized trajectories to develop basic interaction skills</li>
+                <li>Followed by rejection sampling tuning to enhance exploration abilities</li>
+                <li>Concludes with reflection tuning to foster self-correction</li>
+              </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="content has-text-justified">
+            We evaluate our approach on four high-level embodied tasks in the AI2-THOR simulator: <strong>Search</strong>,
+            <strong>Manipulation</strong>, <strong>Transportation</strong>, and <strong>Composite</strong> Tasks. These tasks require agents to locate hidden objects in unfamiliar
+            environments through reasoning and planning, then manipulate or transport them to designated areas. Our data engine
+            synthesizes <i>9.3k task instructions paired with interactive trajectories</i>, containing <i>64k images</i> and <i>8M thought tokens</i>,
+            spanning <i>107 diverse indoor scenes</i>, <i>2,100 objects</i>, and <i>2,600 containers</i>. These trajectories are used for our three stage model training.
+          </div> 
+        </div>
+      </div>
+  </section>
+
+
+
+  <!-- <Interactive Evaluation> -->
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column is-full-width has-text-centered"> -->
+        <div class="column is-four-fifths">
+            <h2 class="title is-3">Interactive Evaluation</h2>
+          <div class="content has-text-justified">
+            We cultivate <i>809 test cases</i> across 12 novel scenarios, which are different from training scenes. 
+            We manually design instructions and annotate corresponding key actions and final states: &lt;Instruction, Key Action, Final
+            state &gt;. 
+            Notably, our test-set contains <i>25</i> carefully designed ultra <i>long-horizon tasks</i>, each involving four
+            sub-tasks and <i>14-27 key actions</i>.
+          </div>
+
+        <div class="content has-text-centered">
+          <table style="margin: 0 auto; border-collapse: collapse; font-size: 0.8em;">
+            <thead>
+              <!-- 表头第一行 -->
+              <tr style="border-bottom: 1pt solid black;">
+                <th style="padding: 6px;" rowspan="2">Model</th>
+                <th style="padding: 6px;" rowspan="2">Success Rate ↑</th>
+                <th style="padding: 6px;" rowspan="2">Search Efficiency ↑</th>
+                <th style="padding: 6px;" rowspan="2">Task Completeness ↑</th>
+                <th style="padding: 6px;" colspan="4">Success Rate for SubTasks ↑</th>
+              </tr>
+              <!-- 表头第二行（子列） -->
+              <tr style="border-bottom: 1pt black;">
+                <th style="padding: 6px; font-weight: normal;">Search</th>
+                <th style="padding: 6px; font-weight: normal;">Manipulate</th>
+                <th style="padding: 6px; font-weight: normal;">Transport</th>
+                <th style="padding: 6px; font-weight: normal;">Composite</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <!-- General-purpose VLMs -->
+              <tr style="background-color: #f9f9f9;">
+                <td style="padding: 6px; text-align:center;" colspan="8"><strong>General-purpose VLMs</strong></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px; text-align:left;" >Qwen2.5-VL-7B-Instruct</td>
+                <td style="padding: 6px;">12.38%</td>
+                <td style="padding: 6px;">10.87%</td>
+                <td style="padding: 6px;">27.53%</td>
+                <td style="padding: 6px;">6.45%</td>
+                <td style="padding: 6px;">23.55%</td>
+                <td style="padding: 6px;">7.56%</td>
+                <td style="padding: 6px;">0.95%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px; text-align:left;">Qwen2-VL-7B-Instruct</td>
+                <td style="padding: 6px;">14.79%</td>
+                <td style="padding: 6px;">11.97%</td>
+                <td style="padding: 6px;">38.67%</td>
+                <td style="padding: 6px;">23.33%</td>
+                <td style="padding: 6px;">25.50%</td>
+                <td style="padding: 6px;">2.82%</td>
+                <td style="padding: 6px;">0.00%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px; text-align:left;">Qwen2.5-VL-72B-Instruct</td>
+                <td style="padding: 6px;">31.75%</td>
+                <td style="padding: 6px;">22.61%</td>
+                <td style="padding: 6px;">50.62%</td>
+                <td style="padding: 6px;">52.14%</td>
+                <td style="padding: 6px;">38.89%</td>
+                <td style="padding: 6px;">21.90%</td>
+                <td style="padding: 6px;">0.00%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px; text-align:left;">Qwen2-VL-72B-Instruct</td>
+                <td style="padding: 6px;">39.00%</td>
+                <td style="padding: 6px;">28.88%</td>
+                <td style="padding: 6px;">54.56%</td>
+                <td style="padding: 6px;">50.00%</td>
+                <td style="padding: 6px;">52.36%</td>
+                <td style="padding: 6px;">33.19%</td>
+                <td style="padding: 6px;">0.00%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px; text-align:left;">Claude 3.5-Sonnet</td>
+                <td style="padding: 6px;">45.35%</td>
+                <td style="padding: 6px;">28.05%</td>
+                <td style="padding: 6px;">64.12%</td>
+                <td style="padding: 6px;">54.25%</td>
+                <td style="padding: 6px;">50.51%</td>
+                <td style="padding: 6px;">51.22%</td>
+                <td style="padding: 6px;">3.84%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px; text-align:left;">Qwen-VL-Max</td>
+                <td style="padding: 6px;">49.81%</td>
+                <td style="padding: 6px;">36.28%</td>
+                <td style="padding: 6px;">68.39%</td>
+                <td style="padding: 6px;">63.87%</td>
+                <td style="padding: 6px;">63.21%</td>
+                <td style="padding: 6px;">45.16%</td>
+                <td style="padding: 6px;">1.90%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px; text-align:left;">GPT-4o</td>
+                <td style="padding: 6px;">66.67%</td>
+                <td style="padding: 6px;">41.68%</td>
+                <td style="padding: 6px;">79.07%</td>
+                <td style="padding: 6px;">69.03%</td>
+                <td style="padding: 6px;">79.26%</td>
+                <td style="padding: 6px;">71.95%</td>
+                <td style="padding: 6px;">14.42%</td>
+              </tr>
+
+              <!-- Visual Reasoning Models -->
+              <tr style="background-color: #F9F9F9;">
+                <td style="padding: 6px; text-align:center;" colspan="8"><strong>Visual Reasoning Models</strong></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px;text-align:left;">QVQ-72B-Preview</td>
+                <td style="padding: 6px;">7.54%</td>
+                <td style="padding: 6px;">6.39%</td>
+                <td style="padding: 6px;">36.33%</td>
+                <td style="padding: 6px;">4.35%</td>
+                <td style="padding: 6px;">7.50%</td>
+                <td style="padding: 6px;">10.53%</td>
+                <td style="padding: 6px;">0.00%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px;text-align:left;">Kimi-K1.5<sup>†</sup></td>
+                <td style="padding: 6px;">46.00%</td>
+                <td style="padding: 6px;">-</td>
+                <td style="padding: 6px;">-</td>
+                <td style="padding: 6px;">-</td>
+                <td style="padding: 6px;">-</td>
+                <td style="padding: 6px;">-</td>
+                <td style="padding: 6px;">-</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px;text-align:left;">GPT-o3-mini</td>
+                <td style="padding: 6px;">56.55%</td>
+                <td style="padding: 6px;">26.93%</td>
+                <td style="padding: 6px;">67.41%</td>
+                <td style="padding: 6px; font-weight: bold; color: rgb(169, 2, 2)">78.57%</td>
+                <td style="padding: 6px;">59.32%</td>
+                <td style="padding: 6px;">66.67%</td>
+                <td style="padding: 6px;">0.00%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px;text-align:left;">Gemini-2.0 Flash Thinking</td>
+                <td style="padding: 6px;">56.74%</td>
+                <td style="padding: 6px;">43.01%</td>
+                <td style="padding: 6px;">71.70%</td>
+                <td style="padding: 6px;">71.05%</td>
+                <td style="padding: 6px;">75.60%</td>
+                <td style="padding: 6px;">40.67%</td>
+                <td style="padding: 6px;">8.89%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px;text-align:left;">Claude-3.7-Sonnet-thinking</td>
+                <td style="padding: 6px;">67.70%</td>
+                <td style="padding: 6px;">37.95%</td>
+                <td style="padding: 6px;">78.63%</td>
+                <td style="padding: 6px;">69.12%</td>
+                <td style="padding: 6px;">75.88%</td>
+                <td style="padding: 6px;">71.94%</td>
+                <td style="padding: 6px;">13.79%</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px;text-align:left;">GPT-o1</td>
+                <td style="padding: 6px;">71.73%</td>
+                <td style="padding: 6px;">43.06%</td>
+                <td style="padding: 6px;">82.49%</td>
+                <td style="padding: 6px;">78.42%</td>
+                <td style="padding: 6px;">79.10%</td>
+                <td style="padding: 6px;">67.36%</td>
+                <td style="padding: 6px;">13.16%</td>
+              </tr>
+              <tr style="background-color: rgb(222, 249, 208);">
+                <td style="padding: 6px;text-align:left;">Embodied-Interactor-<strong>7B</strong> (<strong>ours-1st</strong>)</td>
+                <td style="padding: 6px;">25.46%</td>
+                <td style="padding: 6px;">24.75%</td>
+                <td style="padding: 6px;">53.67%</td>
+                <td style="padding: 6px;">30.97%</td>
+                <td style="padding: 6px;">27.09%</td>
+                <td style="padding: 6px;">29.20%</td>
+                <td style="padding: 6px;">3.81%</td>
+              </tr>
+              <tr style="background-color: rgb(222, 249, 208);">
+                <td style="padding: 6px;text-align:left;">Embodied-Explorer-<strong>7B</strong> (<strong>ours-2nd</strong>)</td>
+                <td style="padding: 6px;">65.39%</td>
+                <td style="padding: 6px;">46.25%</td>
+                <td style="padding: 6px;">77.73%</td>
+                <td style="padding: 6px;">60.00%</td>
+                <td style="padding: 6px;">75.92%</td>
+                <td style="padding: 6px;">72.24%</td>
+                <td style="padding: 6px;">26.67%</td>
+              </tr>
+              <tr style="background-color: rgb(222, 249, 208);">
+                <td style="padding: 6px;text-align:left;">Embodied-Reasoner-<strong>2B</strong> (<strong>ours-3rd</strong>)</td>
+                <td style="padding: 6px;">59.09%</td>
+                <td style="padding: 6px;">40.05%</td>
+                <td style="padding: 6px;">72.04%</td>
+                <td style="padding: 6px;">64.52%</td>
+                <td style="padding: 6px;">68.56%</td>
+                <td style="padding: 6px;">63.20%</td>
+                <td style="padding: 6px;">14.29%</td>
+              </tr>
+              <tr style="background-color: rgb(222, 249, 208);">
+                <td style="padding: 6px;text-align:left;">Embodied-Reasoner-<strong>3B</strong> (<strong>ours-3rd</strong>)</td>
+                <td style="padding: 6px;">73.67%</td>
+                <td style="padding: 6px;">50.88%</td>
+                <td style="padding: 6px;">83.34%</td>
+                <td style="padding: 6px;">65.16%</td>
+                <td style="padding: 6px;">86.96%</td>
+                <td style="padding: 6px;">77.60%</td>
+                <td style="padding: 6px;">39.05%</td>
+              </tr>
+              <tr style="background-color: rgb(222, 249, 208);">
+                <td style="padding: 6px;text-align:left;">Embodied-Reasoner-<strong>7B</strong> (<strong>ours-3rd</strong>)</td>
+                <td style="padding: 6px;font-weight: bold; color: rgb(169, 2, 2)">80.96%</td>
+                <td style="padding: 6px;font-weight: bold; color: rgb(169, 2, 2)">55.07%</td>
+                <td style="padding: 6px;font-weight: bold; color: rgb(169, 2, 2)">86.30%</td>
+                <td style="padding: 6px;">65.16%</td>
+                <td style="padding: 6px;font-weight: bold; color: rgb(169, 2, 2)">93.31%</td>
+                <td style="padding: 6px;font-weight: bold; color: rgb(169, 2, 2)">87.20%</td>
+                <td style="padding: 6px;font-weight: bold; color: rgb(169, 2, 2)">54.29%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p style="font-size: 0.9em; margin-top: 10px; font-style: italic;">
+            We compare the performance of Embodied-Reasoner against advanced VLMs and visual reasoning models. 
+            Success Rate (%) measures whether a task is successfully completed.
+            <!-- by evaluating if the key actions align correctly and if the final state meets the task criteria.  -->
+            Search Efficiency (%) evaluates task efficiency—more steps indicate lower efficiency. 
+            <!-- We calculate it as the ratio of key action numbers to predicted action numbers.  -->
+            Task Completeness (%) computes the proportion of predicted actions that belong to the set of key actions.
+          </p>
+        </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <Real-World Evaluation> -->
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column is-full-width has-text-centered"> -->
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Real-World Evaluation</h2>
+          <div class="content has-text-justified">
+            To evaluate the generalization of our reasoning model, we design a real-world experiment about object searching,
+            covering <i>30 tasks</i> across <i>three scenes</i>: 6 kitchen tasks, 12 bathroom tasks, and 12 bedroom tasks. During testing, a human
+            operator holds a camera to capture real-time visual input. The model analyzes each image and generates an action
+            command, which the operator executes the actions.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column is-full-width has-text-centered"> -->
+        <div class="column is-four-fifths">
+          <div class="box">
+            <div class="content has-text-centered">
+              <img src="static/images/real_world_exp_new.pdf" alt="Embodied Reasoner" width="85%" />
+            </div>
+            <div class="has-text-justified">
+              <i>Our model rules out the countertop and dining table after two explorations <strong>(steps 1,2)</strong>, ultimately locating the coffee (<strong>#7</strong>) in the cabinet and placing it in
+              the microwave for heating (<strong>#11</strong>). 
+              However, we observe that OpenAI o3-mini fails to formulate a reasonable plan, heading to the microwave first instead of searching for the coffee. 
+              Besides, it frequently forgets to search and exhibits repetitive searching, aligning with our previous analysis.</i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <Examples> -->
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+        <h2 class="title is-3">Examples</h2>
+   
+          <div id="results-carousel" class="carousel results-carousel" data-autoplay="true" data-autoplay-speed="4000">
+          
+            <div class="box m-5" style="background-color: #f5f5f5; border: 2px solid #dbdbdb;">
+              <div class="content has-text-justified">
+                <p>An Example Interactive Trajectory of Embodied-Reasoner</p>
+              </div>
+              <div class="content has-text-centered">
+                <img src="static/images/examples/fig1.pdf" alt="Example1" width="100%" />
+              </div>
+              <div class="has-text-justified">
+              </div>
+            </div>
+  
+            <div class="box m-5" style="background-color: #f5f5f5; border: 2px solid #dbdbdb;">
+              <div class="content has-text-justified">
+                <p>An Evaluation Interaction Trajectory of Embodied-Reasoner</p>
+              </div>
+              <div class="content has-text-centered">
+                <img src="static/images/examples/appendix_er.pdf" alt="Example2" width="100%" />
+              </div>
+              <div class="has-text-justified">
+              </div>
+            </div>
+            
+
+            <div class="box m-5" style="background-color: #f5f5f5; border: 2px solid #dbdbdb;">
+              <div class="content has-text-justified">
+                <p>An Evaluation Interaction Trajectory of GPT-o1</p>
+              </div>
+              <div class="content has-text-centered">
+                <img src="static/images/examples/appendix_o1.pdf" alt="Example3" width="100%" />
+              </div>
+              <div class="has-text-justified">
+              </div>
+            </div>
+
+            <div class="box m-5" style="background-color: #f5f5f5; border: 2px solid #dbdbdb;">
+              <div class="content has-text-justified">
+                <p>A Real-World Interaction Trajectory of Embodied-Reasoner</p>
+              </div>
+              <div class="content has-text-centered">
+                <img src="static/images/examples/appendix_our_real.pdf" alt="Example4" width="100%" />
+              </div>
+              <div class="has-text-justified">
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+  </section>
+
+
+  <!-- @PAN TODO: bibtex -->
+  <!--
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3 has-text-centered">BibTeX</h2>
+    <pre><code>@inproceedings{lu2024mathvista,
+  author    = {Lu, Pan and Bansal, Hritik and Xia, Tony and Liu, Jiacheng and Li, Chunyuan and Hajishirzi, Hannaneh and Cheng, Hao and Chang, Kai-Wei and Galley, Michel and Gao, Jianfeng},
+  title     = {MathVista: Evaluating Mathematical Reasoning of Foundation Models in Visual Contexts},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year      = {2024}
+}</code></pre>
+  </div>
+</section>
+-->
+
+
+
+  <footer class="footer">
+    <!-- <div class="container"> -->
+    <div class="content has-text-centered">
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is website adapted from <a href="https://multimodal-interleaved-textbook.github.io">Multimodal Textbook</a>, <a href="https://mathvista.github.io/">MathVista</a> and <a
+              href="https://nerfies.github.io/">Nerfies</a>, licensed under a <a rel="license"
+              href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+              Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- </div> -->
+  </footer>
+
+</body>
+
+</html>
